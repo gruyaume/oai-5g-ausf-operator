@@ -1,0 +1,43 @@
+## UDM configuration file
+UDM =
+{
+  INSTANCE_ID = {{ instance }};
+  PID_DIRECTORY = "{{ pid_directory }}";
+
+  UDM_NAME = "{{ udm_name }}";
+
+  INTERFACES:{
+    # UDM binded interface for SBI interface (e.g., communication with UDR, AUSF)
+    SBI:{
+        INTERFACE_NAME = "{{ sbi_interface_name }}";       # YOUR NETWORK CONFIG HERE
+        IPV4_ADDRESS   = "read";
+        PORT           = {{ sbi_interface_port }};            # YOUR NETWORK CONFIG HERE (default: 80)
+        PPID           = 60;
+        API_VERSION    = "{{ sbi_interface_api_version }}";
+        HTTP2_PORT     = {{ sbi_interface_http2_port }};     # YOUR NETWORK CONFIG HERE
+    };
+  };
+
+  # SUPPORT FEATURES
+  SUPPORT_FEATURES: {
+    # STRING, {"yes", "no"}, 
+    USE_FQDN_DNS = "{{ use_fqdn_dns }}";    # Set to yes if UDM will relying on a DNS to resolve UDR's FQDN
+    USE_HTTP2    = "no";       # Set to yes to enable HTTP2 for AUSF server
+    REGISTER_NRF = "no";    # Set to 'yes' if UDM resgisters to an NRF
+  }  
+    
+  UDR:{
+    IPV4_ADDRESS   = "{{ udr_ipv4_address }}";   # YOUR NETWORK CONFIG HERE
+    PORT           = {{ udr_port }};           # YOUR NETWORK CONFIG HERE (default: 80)
+    API_VERSION    = "{{ udr_api_version }}";   # YOUR API VERSION FOR UDR CONFIG HERE
+    FQDN           = "{{ udr_fqdn }}"          # YOUR UDR FQDN CONFIG HERE
+  };
+  
+  NRF :
+  {
+    IPV4_ADDRESS = "{{ nrf_ipv4_address }}";  # YOUR NRF CONFIG HERE
+    PORT         = {{ nrf_port }};            # YOUR NRF CONFIG HERE (default: 80)
+    API_VERSION  = "{{ nrf_api_version }}";   # YOUR NRF API VERSION HERE
+    FQDN         = "{{ nrf_fqdn }}";          # YOUR NRF FQDN HERE
+  };
+};

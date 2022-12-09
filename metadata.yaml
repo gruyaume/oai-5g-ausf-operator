@@ -1,0 +1,34 @@
+name: oai-5g-ausf
+
+summary: OpenAirInterface 5G Core Network ausf
+
+description: |
+  OPENAIR-CN-5G is an implementation of the 3GPP specifications for the 5G Core Network. This 
+  charms deploys the ausf component of the 5G Core Network.
+
+containers:
+  ausf:
+    resource: ausf-image
+    mounts:
+      - storage: config
+        location: /openair-ausf/etc
+
+storage:
+  config:
+    type: filesystem
+    description: ausf Config directory
+    minimum-size: 1G
+
+resources:
+  ausf-image:
+    type: oci-image
+    description: OCI image for ausf
+    upstream-source: docker.io/oaisoftwarealliance/oai-ausf:v1.4.0
+
+requires:
+  fiveg-nrf:
+    interface: fiveg-nrf
+  fiveg-udr:
+    interface: fiveg-udr
+  database:
+    interface: mysql_client

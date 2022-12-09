@@ -1,0 +1,7 @@
+options:
+  sbiIfName:
+    type: string
+    description: |
+      The interface name of the SBI interface.
+    default: eth0
+    required: true
