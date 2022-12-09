@@ -8,6 +8,7 @@
 import logging
 
 from charms.oai_5g_nrf.v0.fiveg_nrf import FiveGNRFRequires  # type: ignore[import]
+from charms.oai_5g_udm.v0.oai_5g_udm import FiveGUDMRequires  # type: ignore[import]
 from charms.observability_libs.v1.kubernetes_service_patch import (  # type: ignore[import]
     KubernetesServicePatch,
     ServicePort,
@@ -49,6 +50,7 @@ class Oai5GAUSFOperatorCharm(CharmBase):
             ],
         )
         self.nrf_requires = FiveGNRFRequires(self, "fiveg-nrf")
+        self.udm_requires = FiveGUDMRequires(self, "fiveg-udm")
         self.framework.observe(self.on.config_changed, self._on_config_changed)
         self.framework.observe(self.on.fiveg_nrf_relation_changed, self._on_config_changed)
 
@@ -68,9 +70,17 @@ class Oai5GAUSFOperatorCharm(CharmBase):
         if not self._nrf_relation_created:
             self.unit.status = BlockedStatus("Waiting for relation to NRF to be created")
             return
+        if not self._udm_relation_created:
+            self.unit.status = BlockedStatus("Waiting for relation to UDM to be created")
+            return
         if not self.nrf_requires.nrf_ipv4_address_available:
             self.unit.status = WaitingStatus(
                 "Waiting for NRF IPv4 address to be available in relation data"
+            )
+            return
+        if not self.udm_requires.udm_ipv4_address_available:
+            self.unit.status = WaitingStatus(
+                "Waiting for UDM IPv4 address to be available in relation data"
             )
             return
         self._push_config()
@@ -91,6 +101,10 @@ class Oai5GAUSFOperatorCharm(CharmBase):
     def _nrf_relation_created(self) -> bool:
         return self._relation_created("fiveg-nrf")
 
+    @property
+    def _udm_relation_created(self) -> bool:
+        return self._relation_created("fiveg-udm")
+
     def _relation_created(self, relation_name: str) -> bool:
         if not self.model.get_relation(relation_name):
             return False
@@ -108,10 +122,12 @@ class Oai5GAUSFOperatorCharm(CharmBase):
             sbi_interface_api_version=self._config_sbi_interface_api_version,
             sbi_interface_http2_port=self._config_sbi_interface_http2_port,
             use_fqdn_dns=self._config_use_fqdn_dns,
-            udm_ipv4_address=self._config_udm_ipv4_address,
-            udm_port=self._config_udm_port,
-            udm_api_version=self._config_udm_api_version,
-            udm_fqdn=self._config_udm_fqdn,
+            use_http2=self._config_use_http2,
+            register_nrf=self._config_register_nrf,
+            udm_ipv4_address=self.udm_requires.udm_ipv4_address,
+            udm_port=self.udm_requires.udm_port,
+            udm_api_version=self.udm_requires.udm_api_version,
+            udm_fqdn=self.udm_requires.udm_fqdn,
             nrf_ipv4_address=self.nrf_requires.nrf_ipv4_address,
             nrf_port=self.nrf_requires.nrf_port,
             nrf_api_version=self.nrf_requires.nrf_api_version,
