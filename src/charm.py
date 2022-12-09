@@ -7,6 +7,7 @@
 
 import logging
 
+from charms.oai_5g_ausf.v0.fiveg_ausf import FiveGAUSFProvides  # type: ignore[import]
 from charms.oai_5g_nrf.v0.fiveg_nrf import FiveGNRFRequires  # type: ignore[import]
 from charms.oai_5g_udm.v0.oai_5g_udm import FiveGUDMRequires  # type: ignore[import]
 from charms.observability_libs.v1.kubernetes_service_patch import (  # type: ignore[import]
@@ -49,11 +50,31 @@ class Oai5GAUSFOperatorCharm(CharmBase):
                 ),
             ],
         )
+        self.ausf_provides = FiveGAUSFProvides(self, "fiveg-ausf")
         self.nrf_requires = FiveGNRFRequires(self, "fiveg-nrf")
         self.udm_requires = FiveGUDMRequires(self, "fiveg-udm")
         self.framework.observe(self.on.config_changed, self._on_config_changed)
         self.framework.observe(self.on.fiveg_nrf_relation_changed, self._on_config_changed)
         self.framework.observe(self.on.fiveg_udm_relation_changed, self._on_config_changed)
+        self.framework.observe(
+            self.on.fiveg_ausf_relation_joined, self._on_fiveg_ausf_relation_joined
+        )
+
+    def _on_fiveg_ausf_relation_joined(self, event) -> None:
+        """Triggered when a relation is joined.
+
+        Args:
+            event: Relation Joined Event
+        """
+        if not self.unit.is_leader():
+            return
+        self.ausf_provides.set_ausf_information(
+            ausf_ipv4_address="127.0.0.1",
+            ausf_fqdn=f"{self.model.app.name}.{self.model.name}.svc.cluster.local",
+            ausf_port=self._config_sbi_interface_port,
+            ausf_api_version=self._config_sbi_interface_api_version,
+            relation_id=event.relation.id,
+        )
 
     def _on_config_changed(self, event: ConfigChangedEvent) -> None:
         """Triggered on any change in configuration.
