@@ -53,6 +53,7 @@ class Oai5GAUSFOperatorCharm(CharmBase):
         self.udm_requires = FiveGUDMRequires(self, "fiveg-udm")
         self.framework.observe(self.on.config_changed, self._on_config_changed)
         self.framework.observe(self.on.fiveg_nrf_relation_changed, self._on_config_changed)
+        self.framework.observe(self.on.fiveg_udm_relation_changed, self._on_config_changed)
 
     def _on_config_changed(self, event: ConfigChangedEvent) -> None:
         """Triggered on any change in configuration.
