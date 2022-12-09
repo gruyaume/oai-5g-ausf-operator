@@ -30,3 +30,7 @@ requires:
     interface: fiveg-nrf
   fiveg-udm:
     interface: fiveg-udm
+
+provides:
+  fiveg-ausf:
+    interface: fiveg-ausf
