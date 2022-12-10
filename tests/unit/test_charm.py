@@ -159,9 +159,9 @@ class TestCharm(unittest.TestCase):
         self, patch_get_service
     ):
         self.harness.set_leader(True)
-        self.harness.set_can_connect(container="udm", val=True)
+        self.harness.set_can_connect(container="ausf", val=True)
         patch_get_service.return_value = ServiceInfo(
-            name="udm",
+            name="ausf",
             current=ServiceStatus.ACTIVE,
             startup=ServiceStartup.ENABLED,
         )

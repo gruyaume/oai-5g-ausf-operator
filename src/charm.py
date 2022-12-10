@@ -31,7 +31,7 @@ class Oai5GAUSFOperatorCharm(CharmBase):
     def __init__(self, *args):
         """Observes juju events."""
         super().__init__(*args)
-        self._container_name = "ausf"
+        self._container_name = self._service_name = "ausf"
         self._container = self.unit.get_container(self._container_name)
         self.service_patcher = KubernetesServicePatch(
             charm=self,
@@ -227,7 +227,7 @@ class Oai5GAUSFOperatorCharm(CharmBase):
             "summary": "ausf layer",
             "description": "pebble config layer for ausf",
             "services": {
-                "ausf": {
+                self._service_name: {
                     "override": "replace",
                     "summary": "ausf",
                     "command": f"/openair-ausf/bin/oai_ausf -c {BASE_CONFIG_PATH}/{CONFIG_FILE_NAME} -o",  # noqa: E501
