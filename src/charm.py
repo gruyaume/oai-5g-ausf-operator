@@ -68,6 +68,10 @@ class Oai5GAUSFOperatorCharm(CharmBase):
         """
         if not self.unit.is_leader():
             return
+        if not self._ausf_service_started:
+            logger.info("AUSF service not started yet, deferring event")
+            event.defer()
+            return
         self.ausf_provides.set_ausf_information(
             ausf_ipv4_address="127.0.0.1",
             ausf_fqdn=f"{self.model.app.name}.{self.model.name}.svc.cluster.local",
@@ -75,6 +79,14 @@ class Oai5GAUSFOperatorCharm(CharmBase):
             ausf_api_version=self._config_sbi_interface_api_version,
             relation_id=event.relation.id,
         )
+
+    @property
+    def _ausf_service_started(self) -> bool:
+        if not self._container.can_connect():
+            return False
+        if not self._container.get_service(self._service_name).is_running():
+            return False
+        return True
 
     def _on_config_changed(self, event: ConfigChangedEvent) -> None:
         """Triggered on any change in configuration.
