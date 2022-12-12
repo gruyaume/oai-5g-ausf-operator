@@ -83,8 +83,6 @@ class TestCharm(unittest.TestCase):
             udm_fqdn,
         ) = self._create_udm_relation_with_valid_data()
 
-        self.harness.update_config(key_values={"sbiIfName": "eth0"})
-
         mock_push.assert_called_with(
             path="/openair-ausf/etc/ausf.conf",
             source="## AUSF configuration file\n"
@@ -134,8 +132,6 @@ class TestCharm(unittest.TestCase):
         self.harness.set_can_connect(container="ausf", val=True)
         self._create_nrf_relation_with_valid_data()
         self._create_udm_relation_with_valid_data()
-
-        self.harness.update_config({"sbiIfName": "eth0"})
 
         expected_plan = {
             "services": {

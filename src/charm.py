@@ -210,7 +210,7 @@ class Oai5GAUSFOperatorCharm(CharmBase):
 
     @property
     def _config_sbi_interface_name(self) -> str:
-        return self.model.config["sbiIfName"]
+        return "eth0"
 
     @property
     def _config_sbi_interface_port(self) -> str:
