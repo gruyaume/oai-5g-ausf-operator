@@ -216,6 +216,14 @@ class FiveGAUSFProvides(Object):
         relation = self.model.get_relation(self.relationship_name, relation_id=relation_id)
         if not relation:
             raise RuntimeError(f"Relation {self.relationship_name} not created yet.")
+        if self.ausf_data_is_set(
+            relation_id=relation_id,
+            ausf_ipv4_address=ausf_ipv4_address,
+            ausf_fqdn=ausf_fqdn,
+            ausf_port=ausf_port,
+            ausf_api_version=ausf_api_version,
+        ):
+            return
         relation.data[self.charm.app].update(
             {
                 "ausf_ipv4_address": ausf_ipv4_address,
@@ -224,3 +232,43 @@ class FiveGAUSFProvides(Object):
                 "ausf_api_version": ausf_api_version,
             }
         )
+
+    def ausf_data_is_set(
+        self,
+        relation_id: int,
+        ausf_ipv4_address: str,
+        ausf_fqdn: str,
+        ausf_api_version: str,
+        ausf_port: str,
+    ) -> bool:
+        """Returns whether ausf_address is set in relation data."""
+        relation = self.model.get_relation(self.relationship_name, relation_id=relation_id)
+        if not relation:
+            raise RuntimeError(f"Relation {self.relationship_name} not created yet.")
+        if relation.data[self.charm.app].get("ausf_ipv4_address", None) != ausf_ipv4_address:
+            logger.info(f"ausf_ipv4_address not set to {ausf_ipv4_address} in relation data")
+            return False
+        if relation.data[self.charm.app].get("ausf_fqdn", None) != ausf_fqdn:
+            logger.info(f"ausf_fqdn not set to {ausf_fqdn} in relation data")
+            return False
+        if relation.data[self.charm.app].get("ausf_port", None) != ausf_port:
+            logger.info(f"ausf_port not set to {ausf_port} in relation data")
+            return False
+        if relation.data[self.charm.app].get("ausf_api_version", None) != ausf_api_version:
+            logger.info(f"ausf_api_version not set to {ausf_api_version} in relation data")
+            return False
+        return True
+
+    def set_ausf_information_for_all_relations(
+        self, ausf_ipv4_address: str, ausf_fqdn: str, ausf_port: str, ausf_api_version: str
+    ) -> None:
+        """Sets UDR information in relation data for all relations."""
+        relations = self.model.relations
+        for relation in relations[self.relationship_name]:
+            self.set_ausf_information(
+                ausf_ipv4_address=ausf_ipv4_address,
+                ausf_fqdn=ausf_fqdn,
+                ausf_port=ausf_port,
+                ausf_api_version=ausf_api_version,
+                relation_id=relation.id,
+            )
